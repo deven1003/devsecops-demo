@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-      - 'kubernetes/deployment.yaml'  # Ignore changes to this file to prevent loops
+      - 'kubernetes/deployment.yaml'  # Ignore changes to prevent CI loop
   pull_request:
     branches: [ main ]
 
@@ -81,7 +81,7 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
     outputs:
-      image_tag: ${{ steps.set_output.outputs.image_tag }}
+      image_tag: ${{ steps.meta.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -138,10 +138,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
-      - name: Set image tag output
-        id: set_output
-        run: echo "image_tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
   update-k8s:
     name: Update Kubernetes Deployment
@@ -161,17 +157,12 @@ jobs:
       
       - name: Update Kubernetes deployment file
         env:
-          IMAGE_TAG: sha-${{ github.sha }}
+          IMAGE_TAG: ${{ needs.docker.outputs.image_tag }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           REGISTRY: ghcr.io
         run: |
-          # Define the new image with tag
           NEW_IMAGE="${REGISTRY}/${GITHUB_REPOSITORY}:${IMAGE_TAG}"
-          
-          # Update the deployment file directly
           sed -i "s|image: ${REGISTRY}/.*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yaml
-          
-          # Verify the change
           echo "Updated deployment to use image: ${NEW_IMAGE}"
           grep -A 1 "image:" kubernetes/deployment.yaml
       
