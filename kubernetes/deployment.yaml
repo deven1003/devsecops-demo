@@ -15,30 +15,30 @@ spec:
         app: tic-tac-toe
     spec:
       containers:
-        - name: tic-tac-toe
-          image: ghcr.io/Susan-creator/devsecops-demo:sha-PLACEHOLDER_TAG
-          # NOTE: This will be dynamically updated in CI/CD using 'sed'
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 80
-          resources:
-            limits:
-              cpu: "0.5"
-              memory: "512Mi"
-            requests:
-              cpu: "0.2"
-              memory: "256Mi"
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 5
+      - name: tic-tac-toe
+        image: ghcr.io/Susan-creator/devsecops-demo:sha-fb64dc2ac8cd8d79ad4a75c58326596b59eaf402
+        # Image will be automatically updated by CI/CD pipeline
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.2"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
       imagePullSecrets:
-        - name: github-container-registry
+      - name: github-container-registry
