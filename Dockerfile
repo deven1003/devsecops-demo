@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:1.27.0-alpine3.20
+FROM nginx:stable-perl
 COPY --from=build /app/dist /usr/share/nginx/html
 # Add nginx configuration if needed
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
