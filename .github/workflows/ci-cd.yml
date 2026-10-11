@@ -76,6 +76,9 @@ jobs:
   docker:
     name: Docker Build and Push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs: [build]
     env:
       REGISTRY: ghcr.io
@@ -101,7 +104,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Extract metadata for Docker
         id: meta
@@ -148,13 +151,13 @@ jobs:
   update-k8s:
     name: Update Kubernetes Deployment
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: [docker]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.TOKEN }}
       
       - name: Setup Git config
         run: |
